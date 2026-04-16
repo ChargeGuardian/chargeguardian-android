@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ChargeGuardian</string>
+    <string name="url_hint">Search or enter URL</string>
+    <string name="no_history">No intercepted payments yet.\nShop online and ChargeGuardian will log them here.</string>
+
+    <!-- Nav -->
+    <string name="nav_browser">Browser</string>
+    <string name="nav_history">History</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Confirmation Dialog -->
+    <string name="confirm_title">🛡️ Confirm Payment</string>
+    <string name="confirm_message">Payment method: %1$s\nMerchant: %2$s\n\nConfirm this charge?</string>
+    <string name="confirm_yes">Yes, Charge</string>
+    <string name="confirm_no">Cancel</string>
+
+    <!-- Payment Methods -->
+    <string name="method_credit_card">Credit / Debit Card</string>
+    <string name="method_paypal">PayPal</string>
+    <string name="method_google_pay">Google Pay</string>
+    <string name="method_stripe">Stripe</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_lang_desc">English / Español</string>
+    <string name="settings_whitelist">Trusted Sites</string>
+    <string name="settings_whitelist_desc">Sites where ChargeGuardian won\'t ask for confirmation</string>
+    <string name="settings_about">About</string>
+    <string name="settings_about_desc">ChargeGuardian v1.0.0 — The safe shopping browser.\nYour money, your choice.</string>
+</resources>

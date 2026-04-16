@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_dark">#0d1b12</color>
+    <color name="bg_surface">#1a2e12</color>
+    <color name="gold">#d4a843</color>
+    <color name="gold_bright">#e8c97a</color>
+    <color name="green_primary">#7cb342</color>
+    <color name="green_dark">#558b2f</color>
+    <color name="text_primary">#e0e0e0</color>
+    <color name="text_secondary">#aaaaaa</color>
+    <color name="text_hint">#666666</color>
+    <color name="red">#e53935</color>
+    <color name="nav_selected">@color/gold</color>
+    <color name="nav_unselected">#888888</color>
+</resources>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ChargeGuardian</string>
+    <string name="url_hint">Buscar o ingresar URL</string>
+    <string name="no_history">Sin pagos interceptados aún.\nCompra en línea y ChargeGuardian los registrará aquí.</string>
+    <string name="nav_browser">Navegador</string>
+    <string name="nav_history">Historial</string>
+    <string name="nav_settings">Ajustes</string>
+    <string name="confirm_title">🛡️ Confirmar Pago</string>
+    <string name="confirm_message">Método de pago: %1$s\nComercio: %2$s\n\n¿Confirmar este cargo?</string>
+    <string name="confirm_yes">Sí, Cobrar</string>
+    <string name="confirm_no">Cancelar</string>
+    <string name="method_credit_card">Tarjeta de Crédito / Débito</string>
+    <string name="method_paypal">PayPal</string>
+    <string name="method_google_pay">Google Pay</string>
+    <string name="method_stripe">Stripe</string>
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_language">Idioma</string>
+    <string name="settings_lang_desc">English / Español</string>
+    <string name="settings_whitelist">Sitios de Confianza</string>
+    <string name="settings_whitelist_desc">Sitios donde ChargeGuardian no pedirá confirmación</string>
+    <string name="settings_about">Acerca de</string>
+    <string name="settings_about_desc">ChargeGuardian v1.0.0 — El navegador seguro para compras.\nTu dinero, tu decisión.</string>
+</resources>

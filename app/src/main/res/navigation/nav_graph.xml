@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:startDestination="@id/nav_browser">
+
+    <fragment
+        android:id="@+id/nav_browser"
+        android:name="com.chargeguardian.android.ui.BrowserFragment"
+        android:label="@string/nav_browser" />
+
+    <fragment
+        android:id="@+id/nav_history"
+        android:name="com.chargeguardian.android.ui.HistoryFragment"
+        android:label="@string/nav_history" />
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.chargeguardian.android.ui.SettingsFragment"
+        android:label="@string/nav_settings" />
+</navigation>
