@@ -13,8 +13,12 @@
         android:name="com.chargeguardian.android.ui.HistoryFragment"
         android:label="@string/nav_history" />
 
-    <fragment
+    <activity
         android:id="@+id/nav_settings"
-        android:name="com.chargeguardian.android.ui.SettingsFragment"
+        app:destination="@id/settingsActivity" />
+
+    <activity
+        android:id="@+id/settingsActivity"
+        android:name="com.chargeguardian.android.ui.SettingsActivity"
         android:label="@string/nav_settings" />
 </navigation>
