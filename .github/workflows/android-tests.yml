@@ -34,7 +34,7 @@ jobs:
           path: app/build/reports/tests/
 
   free-manifest:
-    name: Free build must not declare SMS permissions
+    name: Free build must not declare SMS permissions or the notification listener or the notification listener
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -49,8 +49,8 @@ jobs:
       - name: Fail if free manifest declares SMS permissions
         run: |
           M=app/build/intermediates/merged_manifest/freeDebug/AndroidManifest.xml
-          if grep -E "RECEIVE_SMS|READ_SMS" "$M"; then
-            echo "Free build must not declare SMS permissions"
+          if grep -E "NotificationScanService|NotificationScanService|RECEIVE_SMS|READ_SMS" "$M"; then
+            echo "Free build must not declare SMS permissions or the notification listener or the notification listener"
             exit 1
           fi
 

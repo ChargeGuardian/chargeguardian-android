@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Free version: remove SMS permissions — notification scanning only -->
+    <!-- Free: no SMS permissions, no notification listener. Share-to-scan only. -->
     <uses-permission
         android:name="android.permission.RECEIVE_SMS"
         tools:node="remove" />
@@ -10,7 +10,10 @@
         android:name="android.permission.READ_SMS"
         tools:node="remove" />
 
-    <!-- NotificationScanService stays active — user must opt in via system settings -->
-    <!-- Play Store allows NotificationListenerService with explicit user consent -->
+    <application>
+        <service
+            android:name=".scanner.NotificationScanService"
+            tools:node="remove" />
+    </application>
 
 </manifest>
