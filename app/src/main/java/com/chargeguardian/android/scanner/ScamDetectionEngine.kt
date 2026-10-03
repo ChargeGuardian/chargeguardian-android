@@ -97,7 +97,7 @@ object ScamDetectionEngine {
         ScamPattern(Regex("send money", RegexOption.IGNORE_CASE), "Payment request: \"send money\"", "high", 15),
         ScamPattern(Regex("wire transfer", RegexOption.IGNORE_CASE), "Wire transfer request", "critical", 25),
         ScamPattern(Regex("gift card", RegexOption.IGNORE_CASE), "Gift card payment request", "critical", 25),
-        ScamPattern(Regex("bitcoin|crypto|btc|eth|usdt|tether", RegexOption.IGNORE_CASE), "Crypto payment request", "high", 15),
+        ScamPattern(Regex("bitcoin|crypto|btc|\\beth\\b|usdt|tether", RegexOption.IGNORE_CASE), "Crypto payment request", "high", 15),
         ScamPattern(Regex("western union", RegexOption.IGNORE_CASE), "Western Union request", "critical", 25),
         ScamPattern(Regex("moneygram", RegexOption.IGNORE_CASE), "MoneyGram request", "critical", 25),
         ScamPattern(Regex("zelle", RegexOption.IGNORE_CASE), "Zelle transfer request", "medium", 8),
@@ -128,11 +128,11 @@ object ScamDetectionEngine {
     )
 
     private val CRYPTO_GIVEAWAY_PATTERNS = listOf(
-        ScamPattern(Regex("(?:double|triple|10x|100x).*(?:your|send|deposit).*(?:crypto|bitcoin|btc|eth|usdt)", RegexOption.IGNORE_CASE), "Crypto doubling scam", "critical", 40),
-        ScamPattern(Regex("send.*(?:btc|eth|usdt|bitcoin|ethereum).*(?:receive|get|double|back)", RegexOption.IGNORE_CASE), "Send-to-receive crypto scam", "critical", 40),
+        ScamPattern(Regex("(?:double|triple|10x|100x).*(?:your|send|deposit).*(?:crypto|bitcoin|btc|\\beth\\b|usdt)", RegexOption.IGNORE_CASE), "Crypto doubling scam", "critical", 40),
+        ScamPattern(Regex("send.*(?:btc|\\beth\\b|usdt|bitcoin|ethereum).*(?:receive|get|double|back)", RegexOption.IGNORE_CASE), "Send-to-receive crypto scam", "critical", 40),
         ScamPattern(Regex("(?:elon|musk|vitalik|buterin|cz|changpeng).*(?:giveaway|giving away|airdrop|reward)", RegexOption.IGNORE_CASE), "Celebrity crypto giveaway scam", "critical", 40),
-        ScamPattern(Regex("send.*(?:0\\.\\d+).*(?:btc|eth).*(?:and.*(?:receive|get).*(?:double|triple))", RegexOption.IGNORE_CASE), "Precise crypto doubling scam", "critical", 40),
-        ScamPattern(Regex("(?:free|bonus|reward).*(?:crypto|bitcoin|btc|eth|token).*(?:claim|receive|get)", RegexOption.IGNORE_CASE), "Free crypto claim scam", "high", 20),
+        ScamPattern(Regex("send.*(?:0\\.\\d+).*(?:btc|\\beth\\b).*(?:and.*(?:receive|get).*(?:double|triple))", RegexOption.IGNORE_CASE), "Precise crypto doubling scam", "critical", 40),
+        ScamPattern(Regex("(?:free|bonus|reward).*(?:crypto|bitcoin|btc|\\beth\\b|token).*(?:claim|receive|get)", RegexOption.IGNORE_CASE), "Free crypto claim scam", "high", 20),
         ScamPattern(Regex("(?:official|verified|trusted).*(?:giveaway|airdrop|reward).*(?:crypto|token)", RegexOption.IGNORE_CASE), "Fake official crypto giveaway", "high", 20),
         ScamPattern(Regex("(?:limited time|crypto event|massive payout).*(?:bonus|reward|claim)", RegexOption.IGNORE_CASE), "Crypto event scam", "high", 18)
     )

@@ -5,7 +5,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 class ScamDetectionEngineTest {
@@ -186,7 +185,6 @@ class ScamDetectionEngineTest {
         assertEquals("critical", r.riskLevel)
     }
 
-    @Ignore("KNOWN BUG: the crypto payment pattern matches 'eth' inside ordinary words (together, method, whether). Add word boundaries, then remove this @Ignore.")
     @Test
     fun ordinaryWordsContainingEthAreNotFlagged() {
         val bodies = listOf("Want to grab lunch together?", "Let me know whether that method works")
