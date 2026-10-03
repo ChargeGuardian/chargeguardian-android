@@ -3,6 +3,9 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"
@@ -30,8 +33,30 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.HistoryActivity" android:parentActivityName=".ui.MainActivity" />
+        <!-- Share to ChargeGuardian — appears in Android share sheet -->
+        <activity
+            android:name=".ui.ShareReceiver"
+            android:exported="true"
+            android:label="@string/share_label"
+            android:theme="@style/Theme.ChargeGuardian">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".ui.SettingsActivity" android:parentActivityName=".ui.MainActivity" />
+
+        <!-- NotificationListener for WhatsApp/Gmail/etc notification scanning -->
+        <service
+            android:name=".scanner.NotificationScanService"
+            android:exported="true"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
