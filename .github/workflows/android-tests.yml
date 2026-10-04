@@ -1,4 +1,4 @@
-name: Escudo Android tests
+name: ChargeGuardian Android tests
 
 on:
   push:
@@ -108,11 +108,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          OPEN=$(gh issue list --repo "${{ github.repository }}" --state open --search "Escudo tests failing on main in:title" --json number --jq 'length')
+          OPEN=$(gh issue list --repo "${{ github.repository }}" --state open --search "ChargeGuardian tests failing on main in:title" --json number --jq 'length')
           if [ "$OPEN" = "0" ]; then
             gh issue create \
               --repo "${{ github.repository }}" \
-              --title "Escudo tests failing on main" \
+              --title "ChargeGuardian tests failing on main" \
               --body "First seen on ${{ github.sha }} (${{ github.event_name }} run): ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           else
             echo "An open failure issue already exists; not creating another."
