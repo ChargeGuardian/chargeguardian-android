@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notif_disclosure_title">Notification access</string>
+    <string name="notif_disclosure_body">This app can read the text of notifications from apps such as WhatsApp, Telegram, Gmail and Messenger, to warn you when a message looks like a scam.\n\n• What is read: the sender and text of notifications from supported apps.\n• Why: only to detect fraud and show you an alert.\n• Where: it is analyzed on your device. We do not send, sell or share your notification content with anyone.\n• A record of each alert (risk level, sender name and a short excerpt of the flagged message) is kept on your phone only.\n\nYou can turn this access off at any time in your phone\'s settings.</string>
+    <string name="notif_disclosure_accept">Agree and continue</string>
+    <string name="notif_disclosure_decline">No thanks</string>
+</resources>

@@ -132,25 +132,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun showNotificationOptInDialog() {
         AlertDialog.Builder(this)
-            .setTitle("Enable Auto-Scanning")
-            .setMessage(
-                "ChargeGuardian scans incoming notification text from WhatsApp, " +
-                "Telegram, Gmail, and Messenger to detect scams before you open them.\n\n" +
-                "🔒 PRIVACY: All scanning happens locally on your device using pattern " +
-                "matching. No message content, notification data, or personal information " +
-                "ever leaves your device or is uploaded to any server.\n\n" +
-                "📋 WHAT WE READ: Only the text content of incoming notifications from " +
-                "supported messaging apps. We do not access contacts, media, location, " +
-                "or any other data.\n\n" +
-                "This is optional. You can always use Share-to-Scan instead.\n\n" +
-                "Tap 'Enable' to go to Notification Access settings, then flip the " +
-                "toggle for ChargeGuardian."
-            )
-            .setPositiveButton("Enable") { _, _ ->
+            .setTitle(R.string.notif_disclosure_title)
+            .setMessage(R.string.notif_disclosure_body)
+            .setCancelable(false)
+            .setPositiveButton(R.string.notif_disclosure_accept) { _, _ ->
                 startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS"))
             }
-            .setNegativeButton("Not Now") { _, _ ->
-                // User chose manual share-to-scan only — that's fine
+            .setNegativeButton(R.string.notif_disclosure_decline) { _, _ ->
+                // Share-to-scan still works without notification access
             }
             .show()
     }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="clip_tile_label">Scan clipboard</string>
+    <string name="clip_title_empty">Clipboard is empty</string>
+    <string name="clip_empty">Copy some text or a link first, then tap the tile again.</string>
+    <string name="clip_title_safe">No scam signals found</string>
+    <string name="clip_safe">This doesn\'t guarantee it\'s safe. Be careful with links and with requests for money or codes.</string>
+    <string name="clip_title_risky">Possible scam</string>
+    <string name="clip_close">Close</string>
+    <string name="clip_title_wallet">Crypto wallet address</string>
+    <string name="clip_wallet">This looks like a crypto wallet address. Check the first and last characters against the address you were given, because malware can swap copied addresses. Crypto payments cannot be reversed. Never send crypto to someone who contacted you first or promised returns.</string>
+</resources>

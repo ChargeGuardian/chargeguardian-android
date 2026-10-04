@@ -68,7 +68,7 @@ class ClipboardMonitor(private val context: Context) {
         }
     }
 
-    private fun isCryptoAddress(text: String): Boolean {
+    fun isCryptoAddress(text: String): Boolean {
         val trimmed = text.trim()
         // Bitcoin: legacy, SegWit, Bech32
         val btcRegex = Regex("^(1|3|bc1)[a-zA-Z0-9]{25,62}$")

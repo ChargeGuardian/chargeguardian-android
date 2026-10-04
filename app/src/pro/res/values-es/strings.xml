@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="clip_tile_label">Escanear portapapeles</string>
+    <string name="clip_title_empty">El portapapeles está vacío</string>
+    <string name="clip_empty">Copia primero un texto o un enlace y vuelve a tocar el mosaico.</string>
+    <string name="clip_title_safe">No se encontraron señales de estafa</string>
+    <string name="clip_safe">Esto no garantiza que sea seguro. Ten cuidado con los enlaces y con las peticiones de dinero o códigos.</string>
+    <string name="clip_title_risky">Posible estafa</string>
+    <string name="clip_close">Cerrar</string>
+    <string name="clip_title_wallet">Dirección de billetera cripto</string>
+    <string name="clip_wallet">Esto parece una dirección de billetera cripto. Revisa los primeros y últimos caracteres contra la dirección que te dieron, porque algunos programas maliciosos cambian las direcciones copiadas. Los pagos en cripto no se pueden revertir. Nunca envíes cripto a alguien que te contactó primero o que te prometió ganancias.</string>
+</resources>
