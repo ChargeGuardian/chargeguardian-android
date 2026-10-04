@@ -42,7 +42,6 @@ class NotificationScanService : NotificationListenerService() {
             "com.whatsapp",          // WhatsApp
             "com.whatsapp.w4b",      // WhatsApp Business
             "com.google.android.gm", // Gmail
-            "com.google.android.apps.messaging", // Google Messages (already scanned via SMS, but redundancy is fine)
             "org.telegram.messenger", // Telegram
             "com.facebook.orca",     // Messenger
             "com.facebook.katana",   // Facebook
@@ -55,7 +54,10 @@ class NotificationScanService : NotificationListenerService() {
             "com.skype.raider",      // Skype
             "com.linkedin.android",  // LinkedIn
             "com.reddit.frontpage",  // Reddit
-        )
+        ) + (if (com.chargeguardian.android.BuildConfig.INCLUDE_SMS_APPS) setOf(
+            "com.google.android.apps.messaging", // Google Messages (Direct only)
+            "com.samsung.android.messaging",
+        ) else emptySet())
 
         // Max notifications to scan per minute per package (rate limiting)
         private val rateLimiter = ConcurrentHashMap<String, Int>()

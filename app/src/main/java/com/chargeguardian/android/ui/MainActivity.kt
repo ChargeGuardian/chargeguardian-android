@@ -85,11 +85,11 @@ class MainActivity : AppCompatActivity() {
     private fun requestSmsPermissions() {
         val permissions = mutableListOf<String>()
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS)
+        if (BuildConfig.INCLUDE_SMS_APPS && ContextCompat.checkSelfPermission(this, Manifest.permission.RECEIVE_SMS)
             != PackageManager.PERMISSION_GRANTED) {
             permissions.add(Manifest.permission.RECEIVE_SMS)
         }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS)
+        if (BuildConfig.INCLUDE_SMS_APPS && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS)
             != PackageManager.PERMISSION_GRANTED) {
             permissions.add(Manifest.permission.READ_SMS)
         }
