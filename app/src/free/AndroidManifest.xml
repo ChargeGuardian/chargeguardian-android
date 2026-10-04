@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Free: no SMS permissions, no notification listener. Share-to-scan only. -->
+    <uses-permission
+        android:name="android.permission.RECEIVE_SMS"
+        tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.READ_SMS"
+        tools:node="remove" />
+
+    <application>
+        <service
+            android:name=".scanner.NotificationScanService"
+            tools:node="remove" />
+    </application>
+
+</manifest>
