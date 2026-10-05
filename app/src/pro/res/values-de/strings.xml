@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="clip_tile_label">Zwischenablage prüfen</string>
+    <string name="clip_title_empty">Zwischenablage ist leer</string>
+    <string name="clip_empty">Kopiere zuerst einen Text oder Link und tippe die Kachel dann erneut an.</string>
+    <string name="clip_title_safe">Keine Betrugssignale gefunden</string>
+    <string name="clip_safe">Das ist keine Garantie für Sicherheit. Sei vorsichtig bei Links und bei Aufforderungen, Geld zu senden oder Codes preiszugeben.</string>
+    <string name="clip_title_risky">Möglicher Betrug</string>
+    <string name="clip_close">Schließen</string>
+    <string name="clip_title_wallet">Krypto-Wallet-Adresse</string>
+    <string name="clip_wallet">Das sieht wie eine Krypto-Wallet-Adresse aus. Vergleiche die ersten und letzten Zeichen mit der Adresse, die du bekommen hast, denn Schadsoftware kann kopierte Adressen austauschen. Krypto-Zahlungen lassen sich nicht rückgängig machen. Sende niemals Krypto an jemanden, der dich zuerst kontaktiert hat oder Gewinne verspricht.</string>
+</resources>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notif_disclosure_title">Accès aux notifications</string>
+    <string name="notif_disclosure_body">Cette application peut lire le texte des notifications d\'applications comme WhatsApp, Telegram, Gmail et Messenger afin de vous avertir lorsqu\'un message ressemble à une arnaque.\n\n• Ce qui est lu : l\'expéditeur et le texte des notifications des applications prises en charge.\n• Pourquoi : uniquement pour détecter les fraudes et vous afficher une alerte.\n• Où : l\'analyse se fait sur votre appareil. Nous n\'envoyons, ne vendons ni ne partageons le contenu de vos notifications avec personne.\n• Un enregistrement de chaque alerte (niveau de risque, nom de l\'expéditeur et court extrait du message signalé) est conservé uniquement sur votre téléphone.\n\nVous pouvez désactiver cet accès à tout moment dans les paramètres de votre téléphone.</string>
+    <string name="notif_disclosure_accept">Accepter et continuer</string>
+    <string name="notif_disclosure_decline">Non merci</string>
+</resources>
