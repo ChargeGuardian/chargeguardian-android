@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="clip_tile_label">Analyser le presse-papiers</string>
+    <string name="clip_title_empty">Le presse-papiers est vide</string>
+    <string name="clip_empty">Copiez d\'abord un texte ou un lien, puis appuyez de nouveau sur la tuile.</string>
+    <string name="clip_title_safe">Aucun signe d\'arnaque détecté</string>
+    <string name="clip_safe">Cela ne garantit pas que ce soit sûr. Soyez prudent avec les liens et les demandes d\'argent ou de codes.</string>
+    <string name="clip_title_risky">Arnaque possible</string>
+    <string name="clip_close">Fermer</string>
+    <string name="clip_title_wallet">Adresse de portefeuille crypto</string>
+    <string name="clip_wallet">Cela ressemble à une adresse de portefeuille crypto. Comparez les premiers et derniers caractères avec l\'adresse qu\'on vous a donnée, car un logiciel malveillant peut remplacer les adresses copiées. Les paiements en crypto sont irréversibles. N\'envoyez jamais de crypto à quelqu\'un qui vous a contacté en premier ou qui vous promet des gains.</string>
+</resources>

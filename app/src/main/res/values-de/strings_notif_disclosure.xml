@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notif_disclosure_title">Zugriff auf Benachrichtigungen</string>
+    <string name="notif_disclosure_body">Diese App kann den Text von Benachrichtigungen von Apps wie WhatsApp, Telegram, Gmail und Messenger lesen, um dich zu warnen, wenn eine Nachricht wie Betrug aussieht.\n\n• Was gelesen wird: Absender und Text der Benachrichtigungen unterstützter Apps.\n• Wozu: ausschließlich, um Betrug zu erkennen und dir eine Warnung anzuzeigen.\n• Wo: Die Analyse erfolgt auf deinem Gerät. Wir senden, verkaufen oder teilen den Inhalt deiner Benachrichtigungen nicht mit Dritten.\n• Zu jeder Warnung wird ein Eintrag (Risikostufe, Absendername und ein kurzer Auszug der markierten Nachricht) ausschließlich auf deinem Telefon gespeichert.\n\nDu kannst diesen Zugriff jederzeit in den Einstellungen deines Telefons deaktivieren.</string>
+    <string name="notif_disclosure_accept">Zustimmen und fortfahren</string>
+    <string name="notif_disclosure_decline">Nein, danke</string>
+</resources>

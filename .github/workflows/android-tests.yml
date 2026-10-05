@@ -1,4 +1,4 @@
-name: Escudo Android tests
+name: ChargeGuardian Android tests
 
 on:
   push:
@@ -25,7 +25,7 @@ jobs:
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
       - name: Run unit tests
-        run: ./gradlew testFreeDebugUnitTest --stacktrace
+        run: ./gradlew testPlayFreeDebugUnitTest testPlayProDebugUnitTest testDirectProDebugUnitTest --stacktrace
       - name: Upload reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -33,8 +33,8 @@ jobs:
           name: unit-test-reports
           path: app/build/reports/tests/
 
-  free-manifest:
-    name: Free build must not declare SMS permissions or the notification listener
+  play-manifest:
+    name: Play builds must not declare SMS
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -44,15 +44,23 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
-      - name: Build merged free manifest
-        run: ./gradlew processFreeDebugMainManifest --stacktrace
-      - name: Fail if free manifest declares SMS permissions
+      - name: Build merged Play manifests
+        run: ./gradlew processPlayFreeDebugMainManifest processPlayProDebugMainManifest --stacktrace
+      - name: Fail if a Play manifest declares SMS
         run: |
-          M=app/build/intermediates/merged_manifest/freeDebug/AndroidManifest.xml
-          if grep -E "NotificationScanService|RECEIVE_SMS|READ_SMS" "$M"; then
-            echo "Free build must not declare SMS permissions or the notification listener"
-            exit 1
-          fi
+          status=0
+          for v in playFreeDebug playProDebug; do
+            M=$(find app/build -path "*merged_manifest*/$v/*" -name AndroidManifest.xml | head -1)
+            echo "Checking $M"
+            if [ -z "$M" ]; then
+              echo "Merged manifest for $v not found"
+              status=1
+            elif grep -E "SMS|MMS|WAP_PUSH" "$M"; then
+              echo "Play build $v must not declare SMS/MMS permissions or receivers"
+              status=1
+            fi
+          done
+          exit $status
 
   smoke:
     name: Emulator smoke test
@@ -80,7 +88,7 @@ jobs:
           profile: pixel_6
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
-          script: ./gradlew connectedProDebugAndroidTest --stacktrace
+          script: ./gradlew connectedPlayProDebugAndroidTest --stacktrace
       - name: Upload reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -91,7 +99,7 @@ jobs:
   open-issue-on-failure:
     name: Open issue on failure
     runs-on: ubuntu-latest
-    needs: [unit, free-manifest, smoke]
+    needs: [unit, play-manifest, smoke]
     if: failure() && github.ref == 'refs/heads/main'
     permissions:
       issues: write
@@ -100,11 +108,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          OPEN=$(gh issue list --repo "${{ github.repository }}" --state open --search "Escudo tests failing on main in:title" --json number --jq 'length')
+          OPEN=$(gh issue list --repo "${{ github.repository }}" --state open --search "ChargeGuardian tests failing on main in:title" --json number --jq 'length')
           if [ "$OPEN" = "0" ]; then
             gh issue create \
               --repo "${{ github.repository }}" \
-              --title "Escudo tests failing on main" \
+              --title "ChargeGuardian tests failing on main" \
               --body "First seen on ${{ github.sha }} (${{ github.event_name }} run): ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           else
             echo "An open failure issue already exists; not creating another."
