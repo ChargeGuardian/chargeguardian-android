@@ -96,15 +96,15 @@ object ScamDetectionEngine {
     private val PAYMENT_PATTERNS = listOf(
         ScamPattern(Regex("send money", RegexOption.IGNORE_CASE), "Payment request: \"send money\"", "high", 15),
         ScamPattern(Regex("wire transfer", RegexOption.IGNORE_CASE), "Wire transfer request", "critical", 25),
-        ScamPattern(Regex("gift card", RegexOption.IGNORE_CASE), "Gift card payment request", "critical", 25),
-        ScamPattern(Regex("bitcoin|crypto|btc|\\beth\\b|usdt|tether", RegexOption.IGNORE_CASE), "Crypto payment request", "high", 15),
+        ScamPattern(Regex("(?:pay|buy|purchase|send|get).{0,30}gift ?cards?", RegexOption.IGNORE_CASE), "Gift card payment request", "critical", 25),
+        ScamPattern(Regex("\\b(?:bitcoin|crypto(?:currency)?|btc|eth|usdt|tether)\\b", RegexOption.IGNORE_CASE), "Crypto payment request", "high", 15),
         ScamPattern(Regex("western union", RegexOption.IGNORE_CASE), "Western Union request", "critical", 25),
         ScamPattern(Regex("moneygram", RegexOption.IGNORE_CASE), "MoneyGram request", "critical", 25),
         ScamPattern(Regex("zelle", RegexOption.IGNORE_CASE), "Zelle transfer request", "medium", 8),
         ScamPattern(Regex("cashapp|venmo", RegexOption.IGNORE_CASE), "Payment app request", "medium", 8),
-        ScamPattern(Regex("bank.*transfer", RegexOption.IGNORE_CASE), "Bank transfer request", "high", 15),
+        ScamPattern(Regex("(?:urgent|immediately|now|today).{0,60}transfer|transfer.{0,60}(?:safe|secure|new) account", RegexOption.IGNORE_CASE), "Bank transfer request", "high", 15),
         ScamPattern(Regex("routing.*number", RegexOption.IGNORE_CASE), "Bank routing number request", "critical", 25),
-        ScamPattern(Regex("ssn|social security", RegexOption.IGNORE_CASE), "SSN request", "critical", 30)
+        ScamPattern(Regex("\\bssn\\b|social security", RegexOption.IGNORE_CASE), "SSN request", "critical", 30)
     )
 
     private val SMS_SPECIFIC_PATTERNS = listOf(
@@ -113,8 +113,47 @@ object ScamDetectionEngine {
         ScamPattern(Regex("(?:bank|credit union).*(?:alert|verify|confirm|suspended)", RegexOption.IGNORE_CASE), "Fake bank SMS", "critical", 20),
         ScamPattern(Regex("(?:unsubscribe|stop2end|STOP).*[?&]?(?:ref|token|id)=", RegexOption.IGNORE_CASE), "SMS phishing with tracking params", "high", 12),
         ScamPattern(Regex("(?:free|won|winner).*(?:msg|text|reply).*(?:stop|claim)", RegexOption.IGNORE_CASE), "Premium-rate SMS bait", "high", 10),
-        ScamPattern(Regex("(?:you.ve|you have) been (?:selected|chosen|picked)", RegexOption.IGNORE_CASE), "Selection scam SMS", "high", 10),
-        ScamPattern(Regex("\\b\\d{6}\\b.*(?:code|pin|verify|confirm)", RegexOption.IGNORE_CASE), "Potential 2FA interception", "critical", 30)
+        ScamPattern(Regex("(?:you.ve|you have) been (?:selected|chosen|picked)", RegexOption.IGNORE_CASE), "Selection scam SMS", "high", 10)
+    )
+
+    // 2FA interception: only fires when the message asks the user to hand a code over,
+    // and is suppressed when the message warns against sharing it.
+    private val OTP_REQUEST = Regex(
+        "(?:send|reply|forward|read (?:out|back)|share|give|tell|provide|env[ií]a|comparte|dime|teilen sie|senden sie|nennen sie|envoyez|communiquez).{0,40}(?:code|pin|c[oó]digo)",
+        RegexOption.IGNORE_CASE
+    )
+    private val DONT_SHARE = Regex(
+        "(?:do not|don't|never)\\s.{0,20}share|no compartas|nicht weiter|ne partagez",
+        RegexOption.IGNORE_CASE
+    )
+
+    // Multilingual bank-transfer pressure (EN/ES/DE/FR). Same signal as the
+    // English "bank transfer" payment pattern, localized.
+    private val BANK_TRANSFER_PRESSURE = listOf(
+        Regex("(?:transfer|wire|send).{0,60}(?:safe|secure|protected|new) account", RegexOption.IGNORE_CASE),
+        Regex("transferencia.{0,40}(?:urgente|inmediata)|cuenta (?:segura|protegida)", RegexOption.IGNORE_CASE),
+        Regex("(?:sofort|dringend).{0,40}[uü]berweisen|sicheres konto", RegexOption.IGNORE_CASE),
+        Regex("virement.{0,40}(?:imm[eé]diat|urgent)|compte s[eé]curis[eé]", RegexOption.IGNORE_CASE)
+    )
+
+    // Delivery / customs fee scams. A fee pattern alone is not enough — only flag
+    // when combined with a link that isn't an official carrier domain.
+    private val DELIVERY_FEE_PATTERNS = listOf(
+        Regex("(?:customs|import|redelivery|delivery|shipping|handling).{0,40}(?:fee|duty|charge|tax)", RegexOption.IGNORE_CASE),
+        Regex("(?:package|parcel|shipment).{0,60}(?:held|on hold|undeliverable|could not be delivered|incomplete address)", RegexOption.IGNORE_CASE),
+        Regex("(?:aduana|derechos de importaci[oó]n|tasa|cargo).{0,40}(?:paquete|env[ií]o|entrega)", RegexOption.IGNORE_CASE),
+        Regex("(?:paquete|env[ií]o).{0,60}(?:retenido|no pudo entregarse|direcci[oó]n incompleta)", RegexOption.IGNORE_CASE),
+        Regex("(?:zoll|zollgeb[uü]hr|einfuhr|nachentgelt|geb[uü]hr).{0,40}(?:paket|sendung|zustellung)", RegexOption.IGNORE_CASE),
+        Regex("(?:paket|sendung).{0,60}(?:zur[uü]ckgehalten|nicht zugestellt|adresse unvollst[aä]ndig)", RegexOption.IGNORE_CASE),
+        Regex("(?:douane|frais de douane|frais de livraison|taxe).{0,40}(?:colis|livraison)", RegexOption.IGNORE_CASE),
+        Regex("colis.{0,60}(?:retenu|en attente|adresse incompl[eè]te)", RegexOption.IGNORE_CASE)
+    )
+    private val CARRIER_OFFICIAL_DOMAINS = mapOf(
+        "dhl" to listOf("dhl.com", "dhl.de"),
+        "ups" to listOf("ups.com"),
+        "fedex" to listOf("fedex.com"),
+        "usps" to listOf("usps.com"),
+        "colissimo" to listOf("colissimo.fr", "laposte.fr")
     )
 
     // ── Deep Crypto Scam Patterns ─────────────────────────────────
@@ -160,15 +199,24 @@ object ScamDetectionEngine {
         ScamPattern(Regex("(?:verify|kyc|identity).*(?:deposit|fee|minimum).*(?:to.*withdraw|to.*trade)", RegexOption.IGNORE_CASE), "KYC deposit scam", "high", 25)
     )
 
-    private val BRAND_NAMES = listOf(
-        "paypal", "amazon", "bank of america", "chase", "wells fargo",
-        "netflix", "apple", "microsoft", "google", "instagram", "facebook",
-        "whatsapp", "telegram", "coinbase", "binance", "robinhood", "irs",
-        "usps", "fedex", "ups", "dhl", "uscis",
-        // Crypto platforms
-        "metamask", "trust wallet", "phantom", "ledger", "trezor",
-        "opensea", "uniswap", "pancakeswap", "kraken", "bybit", "okx",
-        "crypto.com", "blockchain.com"
+    // Brand name -> official domains. Impersonation is defined as: the message
+    // names a brand AND contains a link that does NOT go to that brand's own
+    // domain. A plain brand mention (no link) scores 0, and a sender whose name
+    // matches a brand is NOT treated as impersonation on its own.
+    private val BRAND_OFFICIAL_DOMAINS: Map<String, List<String>> = mapOf(
+        "paypal" to listOf("paypal.com", "paypal.me"),
+        "amazon" to listOf("amazon.com", "amazon.es", "amazon.de", "amazon.fr", "amazon.com.mx", "amzn.to", "a.co"),
+        "netflix" to listOf("netflix.com"),
+        "apple" to listOf("apple.com", "icloud.com"),
+        "dhl" to listOf("dhl.com", "dhl.de"),
+        "fedex" to listOf("fedex.com"),
+        "usps" to listOf("usps.com"),
+        "ups" to listOf("ups.com"),
+        "chase" to listOf("chase.com"),
+        "bank of america" to listOf("bankofamerica.com"),
+        "wells fargo" to listOf("wellsfargo.com"),
+        "coinbase" to listOf("coinbase.com"),
+        "binance" to listOf("binance.com")
     )
 
     private val CRYPTO_LOOKALIKE_OFFICIAL: Map<String, String> = mapOf(
@@ -294,6 +342,12 @@ object ScamDetectionEngine {
                     break
                 }
             }
+
+            // 2FA interception: only when asked to share a code and not warned against sharing
+            if (OTP_REQUEST.containsMatchIn(bodyLower) && !DONT_SHARE.containsMatchIn(bodyLower)) {
+                signals.add(Signal("Asked to share a verification code", "critical"))
+                score += 30
+            }
         }
 
         // 3. Urgency phrases
@@ -312,6 +366,44 @@ object ScamDetectionEngine {
                 score += pattern.score
                 break
             }
+        }
+
+        // 4b. Multilingual bank-transfer pressure (EN/ES/DE/FR)
+        for (pattern in BANK_TRANSFER_PRESSURE) {
+            if (pattern.containsMatchIn(bodyLower)) {
+                signals.add(Signal("Bank transfer pressure", "high"))
+                score += 25
+                break
+            }
+        }
+
+        // 4c. Delivery / customs fee scam: fee pattern AND a link to a non-carrier domain
+        for (pattern in DELIVERY_FEE_PATTERNS) {
+            if (pattern.containsMatchIn(bodyLower)) {
+                val deliveryLinkDomains = links.map { extractDomain(it) }.filter { it.isNotEmpty() }
+                val hasNonCarrierLink = deliveryLinkDomains.isNotEmpty() &&
+                    deliveryLinkDomains.all { d -> CARRIER_OFFICIAL_DOMAINS.values.none { official -> official.any { o -> d == o || d.endsWith(".$o") } } }
+                if (hasNonCarrierLink) {
+                    signals.add(Signal("Delivery/customs fee with unofficial link", "high"))
+                    score += 20
+                    break
+                }
+            }
+        }
+
+        // 4d. Fake charge notice: charge language + phone number + "did not authorize"
+        val hasChargeLanguage = Regex(
+            "(?:was charged|has been charged|charged to your|se ha cobrado|se cobr[oó]|wurde abgebucht|a [eé]t[eé] d[eé]bit[eé])",
+            RegexOption.IGNORE_CASE
+        ).containsMatchIn(bodyLower)
+        val hasPhoneNumber = Regex("\\+?\\d[\\d\\s().-]{8,}\\d").containsMatchIn(body)
+        val hasNotAuthorized = Regex(
+            "(?:did not authorize|not authorized|no reconoces este cargo|nicht autorisiert|non autoris[eé])",
+            RegexOption.IGNORE_CASE
+        ).containsMatchIn(bodyLower)
+        if (hasChargeLanguage && hasPhoneNumber && hasNotAuthorized) {
+            signals.add(Signal("Possible fake charge notice", "high"))
+            score += 30
         }
 
         // 4a. Deep crypto scam detection (Pro only)
@@ -362,7 +454,11 @@ object ScamDetectionEngine {
             }
 
             // Wallet address + transfer language
-            val walletAddressMatch = CRYPTO_WALLET_ADDRESS.find(body)
+            // Strip URLs before matching so random base58-looking tracking tokens
+            // embedded in links don't cause false positives. Keep score small when
+            // no transfer language is present.
+            val bodyNoUrls = body.replace(URL_REGEX, " ")
+            val walletAddressMatch = CRYPTO_WALLET_ADDRESS.find(bodyNoUrls)
             if (walletAddressMatch != null) {
                 val hasTransferLanguage = Regex("send|transfer|deposit|donate|contribute", RegexOption.IGNORE_CASE).containsMatchIn(bodyLower)
                 if (hasTransferLanguage) {
@@ -375,19 +471,18 @@ object ScamDetectionEngine {
             }
         }
 
-        // 5. Brand impersonation
-        for (brand in BRAND_NAMES) {
-            if (!bodyLower.contains(brand)) continue
-            val nameLower = sender.lowercase()
-            val nameContainsBrand = brand.split(" ").all { nameLower.contains(it) }
-            if (nameContainsBrand) {
-                signals.add(Signal("\"$sender\" may be impersonating $brand", "high"))
+        // 5. Brand impersonation: brand named AND a link that is not that brand's
+        //    official domain. Whole-word matching only (\\b). A plain brand mention
+        //    without an off-brand link scores 0.
+        val linkDomains = links.map { extractDomain(it) }.filter { it.isNotEmpty() }
+        for ((brand, official) in BRAND_OFFICIAL_DOMAINS) {
+            if (!Regex("\\b" + Regex.escape(brand) + "\\b").containsMatchIn(bodyLower)) continue
+            val offBrand = linkDomains.filter { d -> official.none { o -> d == o || d.endsWith(".$o") } }
+            if (offBrand.isNotEmpty()) {
+                signals.add(Signal("Message mentions $brand but links to ${offBrand.first()}", "high"))
                 score += 20
-            } else {
-                signals.add(Signal("Mentions $brand — verify sender", "low"))
-                score += 5
+                break
             }
-            break
         }
 
         // 6. Unknown sender + suspicious
@@ -406,8 +501,14 @@ object ScamDetectionEngine {
             else -> "low"
         }
 
+        // isScam requires at least one high or critical signal, not just a
+        // raw score threshold. This prevents several medium/low signals from
+        // summing to 15 and flagging a legitimate message.
+        val hasStrongSignal = signals.any { it.severity == "high" || it.severity == "critical" }
+        val isScam = score >= 15 && hasStrongSignal
+
         return ScanResult(
-            isScam = score >= 15,
+            isScam = isScam,
             riskLevel = riskLevel,
             score = score.coerceAtMost(100),
             signals = signals,

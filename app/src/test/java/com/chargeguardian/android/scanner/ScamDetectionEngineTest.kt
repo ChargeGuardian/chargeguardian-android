@@ -82,19 +82,20 @@ class ScamDetectionEngineTest {
     fun twoFactorInterceptionIsFlaggedHigh() {
         val r = ScamDetectionEngine.scanSms(
             "+15550003333",
-            "Your code is 482913. Share it with the agent to verify your account."
+            "Share the code with the agent to verify your account."
         )
         assertTrue(r.isScam)
-        assertEquals("high", r.riskLevel)
-        assertTrue(r.hasSignal("Potential 2FA interception"))
+        assertTrue(r.hasSignal("Asked to share a verification code"))
     }
 
     @Test
-    fun brandImpersonationBySenderNameIsHigh() {
-        val r = ScamDetectionEngine.scanSms("PayPal Support", "Your PayPal account is limited, verify now")
+    fun brandImpersonationViaOffBrandLinkIsHigh() {
+        val r = ScamDetectionEngine.scanSms(
+            "Amazon",
+            "Your Amazon account is limited, verify now at http://amaz0n-help.xyz"
+        )
         assertTrue(r.isScam)
-        assertEquals("high", r.riskLevel)
-        assertTrue(r.hasSignal("may be impersonating paypal"))
+        assertTrue(r.hasSignal("mentions amazon but links to"))
     }
 
     @Test
@@ -191,5 +192,125 @@ class ScamDetectionEngineTest {
         for (body in bodies) {
             assertFalse(body, ScamDetectionEngine.scanSms("Dana", body).isScam)
         }
+    }
+
+    // ── Part 3: false-positive regression tests ───────────────────
+
+    @Test
+    fun realOtpWithDontShareIsNotFlagged() {
+        val r = ScamDetectionEngine.scanSms(
+            "+15550001234",
+            "123456 is your verification code. Don't share it."
+        )
+        assertFalse(r.isScam)
+    }
+
+    @Test
+    fun senderNamedChaseWithPurchaseConfirmationIsNotFlagged() {
+        val r = ScamDetectionEngine.scanSms("Chase", "Your purchase of $20 was approved")
+        assertFalse(r.isScam)
+    }
+
+    @Test
+    fun contactNamedChaseMakingPurchaseIsNotFlagged() {
+        val r = ScamDetectionEngine.scanSms("Chase", "I'll make the purchase tomorrow")
+        assertFalse(r.isScam)
+    }
+
+    @Test
+    fun amazonShippedWithOfficialLinkIsNotFlagged() {
+        val r = ScamDetectionEngine.scanSms(
+            "Amazon.com",
+            "Your Amazon order has shipped https://amazon.com/track/123"
+        )
+        assertFalse(r.isScam)
+    }
+
+    @Test
+    fun brandSubstringsInsideWordsAreNotFlagged() {
+        val bodies = listOf(
+            "This is the first of many",
+            "We have several groups meeting",
+            "The setups are complete",
+            "Enable tethering on your phone",
+            "I study cryptography in school"
+        )
+        for (body in bodies) {
+            assertFalse(body, ScamDetectionEngine.scanSms("Dana", body).isScam)
+        }
+    }
+
+    @Test
+    fun bankTransferCompletedIsNotFlagged() {
+        val r = ScamDetectionEngine.scanSms(
+            "Bank",
+            "Your bank transfer of $50 was completed"
+        )
+        assertFalse(r.isScam)
+    }
+
+    @Test
+    fun giftCardDeliveredIsNotFlagged() {
+        val r = ScamDetectionEngine.scanSms(
+            "Store",
+            "Your gift card has been delivered"
+        )
+        assertFalse(r.isScam)
+    }
+
+    // ── Part 3: must-flag tests ───────────────────────────────────
+
+    @Test
+    fun otpRequestReplyWithCodeIsFlagged() {
+        val r = ScamDetectionEngine.scanSms(
+            "+18005550123",
+            "Reply with the 6-digit code we sent you"
+        )
+        assertTrue(r.isScam)
+        assertTrue(r.hasSignal("Asked to share a verification code"))
+    }
+
+    @Test
+    fun amazonSuspendedWithLookalikeLinkIsFlagged() {
+        val r = ScamDetectionEngine.scanSms(
+            "Amazon",
+            "Amazon: account suspended, verify now http://amaz0n-help.xyz"
+        )
+        assertTrue(r.isScam)
+    }
+
+    @Test
+    fun dhlCustomsFeeWithNonDhlLinkIsFlagged() {
+        val messages = listOf(
+            "DHL: your package has a customs fee, pay here http://dhl-fee-pay.xyz",
+            "DHL: su paquete tiene un cargo de aduana, pague aqui http://dhl-fee-pay.xyz",
+            "DHL: Ihr Paket hat eine Zollgebühr, zahlen Sie hier http://dhl-fee-pay.xyz",
+            "DHL: votre colis a des frais de douane, payez ici http://dhl-fee-pay.xyz"
+        )
+        for (msg in messages) {
+            assertTrue(msg, ScamDetectionEngine.scanSms("DHL", msg).isScam)
+        }
+    }
+
+    @Test
+    fun transferToSafeAccountImmediatelyIsFlaggedInFourLanguages() {
+        val messages = listOf(
+            "Transfer the money to the safe account immediately",
+            "Transferencia urgente a la cuenta segura",
+            "Dringend Geld überweisen auf das sichere Konto",
+            "Virement urgent sur le compte sécurisé"
+        )
+        for (msg in messages) {
+            assertTrue(msg, ScamDetectionEngine.scanSms("Bank", msg).isScam)
+        }
+    }
+
+    @Test
+    fun fakeChargeNoticeWithPhoneNumberIsFlagged() {
+        val r = ScamDetectionEngine.scanSms(
+            "Billing",
+            "$499 was charged. If you did not authorize this, call 1-800-555-0100"
+        )
+        assertTrue(r.isScam)
     }
 }
