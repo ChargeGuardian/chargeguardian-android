@@ -119,14 +119,15 @@ object ScamDetectionEngine {
     // 2FA interception: only fires when the message asks the user to hand a code over
     // (request verb either BEFORE or AFTER the code), and is suppressed when the message
     // warns against sharing it.
-    private val OTP_VERBS = "(?:send|reply|forward|read (?:out|back)|share|give|tell|provide|env[ií]a|comparte|dime|teilen sie|senden sie|nennen sie|envoyez|communiquez)"
+    // NOTE: verbs are whole-word matched (\\b) so "resend" / "sender" don't match "send".
+    private val OTP_VERBS = "\\b(?:send|reply|forward|read (?:out|back)|share|give|tell|provide|env[ií]a|comparte|dime|teilen sie|senden sie|nennen sie|envoyez|communiquez)\\b"
     private val OTP_CODE_WORD = "(?:code|pin|c[oó]digo)"
     private val OTP_REQUEST = Regex(
         "(?:$OTP_VERBS.{0,40}$OTP_CODE_WORD|$OTP_CODE_WORD.{0,40}$OTP_VERBS)",
         RegexOption.IGNORE_CASE
     )
     private val DONT_SHARE = Regex(
-        "(?:do not|don't|never)\\s.{0,20}share|no compartas|nicht weiter|ne partagez",
+        "(?:do not|don't|never)\\s.{0,20}(?:share|give|tell|disclose|reveal|forward|send)|no lo compartas|no compartas|niemandem|nicht weitergeben|ne communiquez|ne partagez",
         RegexOption.IGNORE_CASE
     )
 

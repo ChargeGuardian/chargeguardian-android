@@ -206,6 +206,79 @@ class ScamDetectionEngineTest {
     }
 
     @Test
+    fun otpWithNeverGiveIsNotFlagged() {
+        val r = ScamDetectionEngine.scanSms(
+            "+15550001234",
+            "Your code is 123456. Never give this code to anyone."
+        )
+        assertFalse(r.isScam)
+    }
+
+    @Test
+    fun otpWithResendIsNotFlagged() {
+        // "resend" must not trigger the "send" verb via substring match
+        val r = ScamDetectionEngine.scanSms(
+            "+15550001234",
+            "Your code is 123456. Didn't get it? Resend."
+        )
+        assertFalse(r.isScam)
+    }
+
+    @Test
+    fun spanishOtpWithNoLoCompartasIsNotFlagged() {
+        val r = ScamDetectionEngine.scanSms(
+            "+15550001234",
+            "Tu código es 123456. No lo compartas con nadie."
+        )
+        assertFalse(r.isScam)
+    }
+
+    @Test
+    fun germanOtpWithNichtWeitergebenIsNotFlagged() {
+        val r = ScamDetectionEngine.scanSms(
+            "+15550001234",
+            "Ihr Code lautet 123456. Geben Sie diesen Code an niemandem weiter."
+        )
+        assertFalse(r.isScam)
+    }
+
+    @Test
+    fun frenchOtpWithNeCommuniquezIsNotFlagged() {
+        val r = ScamDetectionEngine.scanSms(
+            "+15550001234",
+            "Votre code est 123456. Ne communiquez ce code à personne."
+        )
+        assertFalse(r.isScam)
+    }
+
+    @Test
+    fun appleChargeAlertWithAppLinkIsNotFlagged() {
+        val r = ScamDetectionEngine.scanSms(
+            "Apple",
+            "Apple: A \$299.99 charge was made on your account. If this wasn't you, open the Apple Support app or visit https://support.apple.com"
+        )
+        assertFalse(r.isScam)
+    }
+
+    @Test
+    fun paypalPaymentAlertWithOfficialLinkIsNotFlagged() {
+        val r = ScamDetectionEngine.scanSms(
+            "PayPal",
+            "PayPal: Did you make a \$50 payment? If not, log in at https://www.paypal.com to review it."
+        )
+        assertFalse(r.isScam)
+    }
+
+    @Test
+    fun appleChargeAlertCallCardNumberIsNotFlagged() {
+        val r = ScamDetectionEngine.scanSms(
+            "Apple",
+            "Apple: A \$299.99 charge was made on your account. If you did not authorize this, call the number on the back of your card."
+        )
+        assertFalse(r.isScam)
+    }
+
+    @Test
     fun senderNamedChaseWithPurchaseConfirmationIsNotFlagged() {
         val r = ScamDetectionEngine.scanSms("Chase", "Your purchase of $20 was approved")
         assertFalse(r.isScam)
