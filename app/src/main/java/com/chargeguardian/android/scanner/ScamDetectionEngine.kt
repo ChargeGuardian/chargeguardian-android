@@ -116,10 +116,13 @@ object ScamDetectionEngine {
         ScamPattern(Regex("(?:you.ve|you have) been (?:selected|chosen|picked)", RegexOption.IGNORE_CASE), "Selection scam SMS", "high", 10)
     )
 
-    // 2FA interception: only fires when the message asks the user to hand a code over,
-    // and is suppressed when the message warns against sharing it.
+    // 2FA interception: only fires when the message asks the user to hand a code over
+    // (request verb either BEFORE or AFTER the code), and is suppressed when the message
+    // warns against sharing it.
+    private val OTP_VERBS = "(?:send|reply|forward|read (?:out|back)|share|give|tell|provide|env[ií]a|comparte|dime|teilen sie|senden sie|nennen sie|envoyez|communiquez)"
+    private val OTP_CODE_WORD = "(?:code|pin|c[oó]digo)"
     private val OTP_REQUEST = Regex(
-        "(?:send|reply|forward|read (?:out|back)|share|give|tell|provide|env[ií]a|comparte|dime|teilen sie|senden sie|nennen sie|envoyez|communiquez).{0,40}(?:code|pin|c[oó]digo)",
+        "(?:$OTP_VERBS.{0,40}$OTP_CODE_WORD|$OTP_CODE_WORD.{0,40}$OTP_VERBS)",
         RegexOption.IGNORE_CASE
     )
     private val DONT_SHARE = Regex(
@@ -154,6 +157,18 @@ object ScamDetectionEngine {
         "fedex" to listOf("fedex.com"),
         "usps" to listOf("usps.com"),
         "colissimo" to listOf("colissimo.fr", "laposte.fr")
+    )
+
+    // Tech-support / payment brands that scammers impersonate for fake-charge
+    // refund scams. Used to escalate the fake-charge signal to high.
+    private val TECH_SUPPORT_BRANDS: Map<String, List<String>> = mapOf(
+        "geek squad" to listOf("geeksquad.com", "bestbuy.com"),
+        "norton" to listOf("norton.com", "lifelock.com"),
+        "mcafee" to listOf("mcafee.com"),
+        "paypal" to listOf("paypal.com", "paypal.me"),
+        "amazon" to listOf("amazon.com", "amazon.es", "amazon.de", "amazon.fr", "amazon.com.mx"),
+        "apple" to listOf("apple.com", "icloud.com"),
+        "microsoft" to listOf("microsoft.com")
     )
 
     // ── Deep Crypto Scam Patterns ─────────────────────────────────
@@ -280,6 +295,7 @@ object ScamDetectionEngine {
         var score = 0
         val bodyLower = body.lowercase()
         val links = extractLinks(body)
+        val linkDomains = links.map { extractDomain(it) }.filter { it.isNotEmpty() }
 
         // 1. Link analysis
         for (link in links) {
@@ -391,19 +407,33 @@ object ScamDetectionEngine {
             }
         }
 
-        // 4d. Fake charge notice: charge language + phone number + "did not authorize"
+        // 4d. Fake charge notice. Default is a medium-signal (genuine banks send fraud
+        //      alerts that look like this). Escalates to high ONLY when the message also
+        //      names a tech-support/payment brand, contains a phone number, and has no
+        //      link to that brand's official domain.
         val hasChargeLanguage = Regex(
-            "(?:was charged|has been charged|charged to your|se ha cobrado|se cobr[oó]|wurde abgebucht|a [eé]t[eé] d[eé]bit[eé])",
+            "(?:was charged|has been charged|charged to your|se ha cobrado|se cobr[oó]|wurde abgebucht|a [eé]t[eé] d[eé]bit[eé]|did you make a )",
             RegexOption.IGNORE_CASE
         ).containsMatchIn(bodyLower)
-        val hasPhoneNumber = Regex("\\+?\\d[\\d\\s().-]{8,}\\d").containsMatchIn(body)
         val hasNotAuthorized = Regex(
             "(?:did not authorize|not authorized|no reconoces este cargo|nicht autorisiert|non autoris[eé])",
             RegexOption.IGNORE_CASE
         ).containsMatchIn(bodyLower)
-        if (hasChargeLanguage && hasPhoneNumber && hasNotAuthorized) {
-            signals.add(Signal("Possible fake charge notice", "high"))
-            score += 30
+        if (hasChargeLanguage && hasNotAuthorized) {
+            val hasPhoneNumber = Regex("\\+?\\d[\\d\\s().-]{8,}\\d").containsMatchIn(body)
+            val namedBrand = TECH_SUPPORT_BRANDS.keys.firstOrNull { brand ->
+                Regex("\\b" + Regex.escape(brand) + "\\b").containsMatchIn(bodyLower)
+            }
+            val linksGoOfficial = namedBrand != null && linkDomains.isEmpty().not() &&
+                linkDomains.all { d -> TECH_SUPPORT_BRANDS[namedBrand]!!.any { o -> d == o || d.endsWith(".$o") } }
+            val escalate = namedBrand != null && hasPhoneNumber && !linksGoOfficial
+            if (escalate) {
+                signals.add(Signal("Tech-support/payment fake charge notice", "high"))
+                score += 30
+            } else {
+                signals.add(Signal("Possible fake charge notice", "medium"))
+                score += 10
+            }
         }
 
         // 4a. Deep crypto scam detection (Pro only)
@@ -474,7 +504,6 @@ object ScamDetectionEngine {
         // 5. Brand impersonation: brand named AND a link that is not that brand's
         //    official domain. Whole-word matching only (\\b). A plain brand mention
         //    without an off-brand link scores 0.
-        val linkDomains = links.map { extractDomain(it) }.filter { it.isNotEmpty() }
         for ((brand, official) in BRAND_OFFICIAL_DOMAINS) {
             if (!Regex("\\b" + Regex.escape(brand) + "\\b").containsMatchIn(bodyLower)) continue
             val offBrand = linkDomains.filter { d -> official.none { o -> d == o || d.endsWith(".$o") } }

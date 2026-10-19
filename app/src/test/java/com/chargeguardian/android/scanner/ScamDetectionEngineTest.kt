@@ -82,7 +82,7 @@ class ScamDetectionEngineTest {
     fun twoFactorInterceptionIsFlaggedHigh() {
         val r = ScamDetectionEngine.scanSms(
             "+15550003333",
-            "Share the code with the agent to verify your account."
+            "Your code is 482913. Share it with the agent to verify your account."
         )
         assertTrue(r.isScam)
         assertTrue(r.hasSignal("Asked to share a verification code"))
@@ -308,9 +308,54 @@ class ScamDetectionEngineTest {
     @Test
     fun fakeChargeNoticeWithPhoneNumberIsFlagged() {
         val r = ScamDetectionEngine.scanSms(
-            "Billing",
-            "$499 was charged. If you did not authorize this, call 1-800-555-0100"
+            "Geek Squad",
+            "Geek Squad: \$499 was charged to your account. If you did not authorize this, call 1-800-555-0100"
         )
         assertTrue(r.isScam)
+        assertTrue(r.hasSignal("Tech-support/payment fake charge notice"))
+    }
+
+    @Test
+    fun bankFraudAlertFromChaseIsNotFlagged() {
+        val r = ScamDetectionEngine.scanSms(
+            "Chase",
+            "Did you make a \$499 purchase? If not, call the number on the back of your card"
+        )
+        assertFalse(r.isScam)
+    }
+
+    @Test
+    fun bankAlertFromShortCodeIsNotFlagged() {
+        val r = ScamDetectionEngine.scanSms(
+            "266898",
+            "Wells Fargo: A \$120 charge was declined on your debit card. Reply NO if this wasn't you, or call 1-800-555-0100"
+        )
+        assertFalse(r.isScam)
+    }
+
+    @Test
+    fun dhlMessageWithOfficialLinkIsNotFlaggedInFourLanguages() {
+        val messages = listOf(
+            "DHL: your package has a customs fee, pay here https://dhl.com/fee",
+            "DHL: su paquete tiene un cargo de aduana, pague aqui https://dhl.com/fee",
+            "DHL: Ihr Paket hat eine Zollgebühr, zahlen Sie hier https://dhl.com/fee",
+            "DHL: votre colis a des frais de douane, payez ici https://dhl.com/fee"
+        )
+        for (msg in messages) {
+            assertFalse(msg, ScamDetectionEngine.scanSms("DHL", msg).isScam)
+        }
+    }
+
+    @Test
+    fun normalTransferCompletedIsNotFlaggedInFourLanguages() {
+        val messages = listOf(
+            "Your transfer of \$500 was completed",
+            "Su transferencia de \$500 fue completada",
+            "Ihre Überweisung von 500 € wurde abgeschlossen",
+            "Votre virement de 500 € a été effectué"
+        )
+        for (msg in messages) {
+            assertFalse(msg, ScamDetectionEngine.scanSms("Bank", msg).isScam)
+        }
     }
 }
