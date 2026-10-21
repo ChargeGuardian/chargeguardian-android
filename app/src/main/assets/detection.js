@@ -115,8 +115,7 @@
         // No payment happens yet, so don't interrupt it.
         if (/^\s*(secure\s*)?(check\s*out|checkout|proceed\s*to\s*checkout)/i.test(text) &&
             !/pay/i.test(text) && text.length < 40 &&
-            !/checkout|payment|billing|pay/i.test(window.location.pathname) &&
-            !document.querySelector('[autocomplete*="cc-number"],[name*="card"]')) return;
+            !/checkout|payment|billing|pay/i.test(window.location.pathname)) return;
 
         // If already confirmed, let it through
         if (window.__cgConfirmed) {
