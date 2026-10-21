@@ -10,6 +10,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.chargeguardian.android.BuildConfig
@@ -36,6 +39,17 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // targetSdk 35+ draws edge-to-edge: keep content below the status bar
+        val content = findViewById<android.view.View>(android.R.id.content)
+        content.setBackgroundColor(ContextCompat.getColor(this, R.color.bg_dark))
+        ViewCompat.setOnApplyWindowInsetsListener(content) { v, insets ->
+            val bars = insets.getInsets(
+                WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.displayCutout()
+            )
+            v.updatePadding(top = bars.top)
+            insets
+        }
 
         // Set Pro/Free mode based on build flavor
         ScamDetectionEngine.isPro = BuildConfig.IS_PRO
