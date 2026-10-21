@@ -7,8 +7,8 @@
     <string name="nav_history">Historial</string>
     <string name="nav_settings">Ajustes</string>
     <string name="confirm_title">🛡️ Confirmar Pago</string>
-    <string name="confirm_message">Método de pago: %1$s\nComercio: %2$s\n\n¿Confirmar este cargo?</string>
-    <string name="confirm_yes">Sí, Cobrar</string>
+    <string name="confirm_message">Método de pago: %1$s\nComercio: %2$s\n\n¿Continuar con este pago?</string>
+    <string name="confirm_yes">Sí, continuar</string>
     <string name="confirm_no">Cancelar</string>
     <string name="method_credit_card">Tarjeta de Crédito / Débito</string>
     <string name="method_paypal">PayPal</string>
