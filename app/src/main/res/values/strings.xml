@@ -11,8 +11,8 @@
 
     <!-- Confirmation Dialog -->
     <string name="confirm_title">🛡️ Confirm Payment</string>
-    <string name="confirm_message">Payment method: %1$s\nMerchant: %2$s\n\nConfirm this charge?</string>
-    <string name="confirm_yes">Yes, Charge</string>
+    <string name="confirm_message">Payment method: %1$s\nMerchant: %2$s\n\nContinue with this payment?</string>
+    <string name="confirm_yes">Yes, Continue</string>
     <string name="confirm_no">Cancel</string>
 
     <!-- Payment Methods -->

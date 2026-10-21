@@ -79,18 +79,14 @@
 
     // Get merchant name
     function getMerchant() {
-        // Try structured data first
-        var ogSite = document.querySelector('meta[property="og:site_name"]');
-        if (ogSite) return ogSite.content;
-
-        // Try document title
-        var title = document.title;
-        if (title) {
-            // Clean up common suffixes
-            title = title.replace(/\s*[-|–]\s*(official site|home|store|shop|online).*$/i, '');
-            return title || window.location.hostname;
+        // Use the site's own name. Never the page title: it is usually a product name.
+        var sel = ['meta[property="og:site_name"]', 'meta[name="application-name"]'];
+        for (var i = 0; i < sel.length; i++) {
+            var el = document.querySelector(sel[i]);
+            var v = (el && el.content) ? el.content.trim() : '';
+            if (v && v.length <= 40) return v;
         }
-        return window.location.hostname;
+        return window.location.hostname.replace(/^www\./i, '');
     }
 
     // Get amount if visible on page
@@ -114,6 +110,13 @@
         var text = (btn.textContent || btn.value || btn.getAttribute('aria-label') || '').trim();
 
         if (!isPayButton(text)) return;
+
+        // A plain "Checkout" button on a cart or drawer only goes to the next step.
+        // No payment happens yet, so don't interrupt it.
+        if (/^\s*(secure\s*)?(check\s*out|checkout|proceed\s*to\s*checkout)/i.test(text) &&
+            !/pay/i.test(text) && text.length < 40 &&
+            !/checkout|payment|billing|pay/i.test(window.location.pathname) &&
+            !document.querySelector('[autocomplete*="cc-number"],[name*="card"]')) return;
 
         // If already confirmed, let it through
         if (window.__cgConfirmed) {
